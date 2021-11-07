@@ -1,0 +1,1 @@
+select GroupName, cast(avg(cast(Mark as float)) as float) as AvgMark from Groups left join (select Students.StudentId as StudentId, StudentName, GroupId, CourseId, Mark from Students left join Marks on Marks.StudentId = Students.StudentId) as Students on Groups.GroupId = Students.GroupId group by Groups.GroupName, Groups.GroupId

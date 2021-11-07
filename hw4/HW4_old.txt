@@ -1,0 +1,178 @@
+1.1. Описание *
+
+Из предыдущего домашнего задания имеем следующие ФЗ
+
+StudentId -> StudentName, GroupId 
+GroupId -> GroupName
+GroupId, CourseId -> CourseName, LecturerId
+LecturerId -> LecturerName
+CourseId, StudentId -> Mark
+
+Отношения удовлетворяют 1НФ:
+	В отношении нет повторяющихся групп
+	Все атрибуты атомарны
+	У отношения есть ключ - {StudentId, CourseId} (доказательство этого есть в предыдущем домашнем задании)
+
+1.2. Результат *
+Для исходного отношения укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...», по одному на строке. Где все отношения заданы в формате «(атрибут1, атрибут2, ...)». Строки, начинающиеся с двух минусов ( -- ) будут считаться комментариями.
+
+-- Разбития на отношения не было.
+(StudentId, StudentName, GroupId, GroupName, CourseId, CourseName, LecturerId, LecturerName, Mark) => (StudentId, StudentName, GroupId, GroupName, CourseId, CourseName, LecturerId, LecturerName, Mark)
+
+2. Вторая нормальная форма
+2.1. Описание *
+
+Требования 2НФ:
+	1НФ - получена на предыдущем шаге
+	Неключевые атрибуты функционально зависят от ключа в целом (не от части ключа)
+		Замечаем нарушение этого условия для правила {StudentId -> StudentName, GroupId}. Необходимо разбить отношение на 2:
+			1) (StudentId, StudentName, GroupId, GroupName) с ФЗ:
+				StudentId -> StudentName, GroupId 
+				GroupId -> GroupName
+				с ключом StudentId (т.к. транзитивное замыкание атрибутов StudentId {StudentId, StudentName, GroupId, GroupName}), следовательно это надключ, минимальный надключ (т.к. атрибут в надключе один), а так же StudentId нет в правой части, следовательно он должен входить в любой надключ.
+			2) (StudentId, CourseId, CourseName, LecturerId, LecturerName, Mark) c ФЗ:
+				GroupId, CourseId -> CourseName, LecturerId
+				LecturerId -> LecturerName
+				CourseId, StudentId -> Mark
+				с единственным ключом {GroupId, CourseId, StudentId}, потому что
+					* в правой части нет этих атрибутов, следовательно они обязаны входить в любой надключ
+					* без GroupId замыкание {CourseId, StudentId} = {CourseId, StudentId, Mark} != множеству всех атрибутов отношения => убрать из надключа GroupId нельзя 
+					* без CourseId замыкание {GroupId, StudentId} = {GroupId, StudentId} != множеству всех атрибутов отношения => убрать из надключа CourseId нельзя 
+					* без StudentId замыкание {GroupId, CourseId} = {GroupId, CourseId, CourseName, LecturerId, LecturerName} != множеству всех атрибутов отношения => убрать из надключа StudentId нельзя
+					(таким образом мы не можем убрать ни один из атрибутов этого надключа, все эти атрибуты должны входить в любой надключ => это ключ)
+3) Полученное на 2 шаге отношение тоже нужно разбивать, т.к. 
+{GroupId, CourseId -> CourseName, LecturerId ; CourseId, StudentId -> Mark} - зависимости от части ключа. Получим отношения
+	1) (GroupId, CourseId, CourseName, LecturerId, LecturerName) c ФЗ
+		GroupId, CourseId -> CourseName, LecturerId
+		LecturerId -> LecturerName
+		и ключом {GroupId, CourseId} (т.к. атрибутов нет в левой части => они обязаны быть в любом надключе, замыкание {GroupId, CourseId} = {GroupId, CourseId, CourseName, LecturerId, LecturerName} - множество всех атрибутов, а замыкание каждого атрибута по отдельности не дает множества всех атрибутов:
+			замыкание {GroupId} = {GroupId}
+			замыкание {CourseId} = {CourseId}
+		)
+	2) (CourseId, StudentId, Mark) c ФЗ
+		CourseId, StudentId -> Mark
+		и ключом {CourseId, StudentId} (замыкание дает множество всех атрибутов очевидно, значит это надключ, по отдельности 
+			замыкание {CourseId} = {CourseId}, 
+			замыкание {StudentId} = {StudentId} не совпадает с множеством всех атрибутов => минимальный надключ, данный атрибуты не содержатся в правой части => должны входить в любой надключ => это надклю)
+
+
+
+
+
+2.2. Результат *
+Для каждого отношения из предыдущей нормальной формы укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...». Где все отношения заданы в формате «(атрибут1, атрибут2, ...)»
+
+
+(StudentId, StudentName, GroupId, GroupName, CourseId, CourseName, LecturerId, LecturerName, Mark) => (StudentId, StudentName, GroupId, GroupName) ; (GroupId, CourseId, CourseName, LecturerId, LecturerName) ; (CourseId, StudentId, Mark)
+
+3. Третья нормальная форма
+3.1. Описание *
+
+Для отношения (StudentId, StudentName, GroupId, GroupName) с ФЗ:
+		StudentId -> StudentName, GroupId 
+		GroupId -> GroupName
+	и ключом {StudentId}
+
+	заметим транзитивную зависимость StudentId -> GroupId ; GroupId -> GroupName. 
+	Разобьем на 2 отношения 
+		1) (StudentId, StudentName, GroupId) с ФЗ {StudentId -> StudentName, GroupId} и ключом {StudentId} (StudentId не содержится в левой части => должен содержаться во надключе, замыкание очевидно дает множество всех атрибутов + это минимальный надключ) 
+		2) (GroupId, GroupName) с ФЗ {GroupId -> GroupName} и ключом {GroupId} (GroupId не содержится в левой части => должен содержаться во надключе, замыкание очевидно дает множество всех атрибутов + это минимальный надключ)
+
+Для отношения (GroupId, CourseId, CourseName, LecturerId, LecturerName) с ФЗ:
+		GroupId, CourseId -> CourseName, LecturerId
+		LecturerId -> LecturerName
+	и ключом {GroupId, CourseId}
+
+	заметим транзитивную зависимость GroupId, CourseId -> LecturerId ; LecturerId -> LecturerName. 
+	Разобьем на 2 отношения 
+		1) (GroupId, CourseId, CourseName, LecturerId) с ФЗ {GroupId, CourseId -> CourseName, LecturerId} и ключом {GroupId, CourseId} ({GroupId, CourseId} не сдержатся в левой части => должны содержаться во надключе,замыкание очевидно дает множество всех атрибутов + это минимальный надключ (замыкание {GroupId} = {GroupId},  замыкание {CourseId} = {CourseId})) 
+		2) (LecturerId, LecturerName) с ФЗ {LecturerId -> LecturerName} и ключом {LecturerId} (LecturerId не содержится в левой части => должен содержаться во надключе, замыкание очевидно дает множество всех атрибутов + это минимальный надключ)
+
+
+3.2. Результат *
+Для каждого отношения из предыдущей нормальной формы укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...». Где все отношения заданы в формате «(атрибут1, атрибут2, ...)»
+
+(StudentId, StudentName, GroupId, GroupName) => (StudentId, StudentName, GroupId) ; (GroupId, GroupName)
+(GroupId, CourseId, CourseName, LecturerId, LecturerName) => (GroupId, CourseId, CourseName, LecturerId) ; (LecturerId, LecturerName)
+(CourseId, StudentId, Mark) => (CourseId, StudentId, Mark)
+
+
+Б. Нормальная форма Бойса-Кодта
+Б.1. Описание *
+Выпишем все отношения с ФЗ и ключами
+1) (StudentId, StudentName, GroupId)
+ФЗ : StudentId -> StudentName, GroupId
+Ключ : {StudentId}
+2) (GroupId, GroupName)
+ФЗ : GroupId -> GroupName
+Ключ : {GroupId}
+3) (GroupId, CourseId, CourseName, LecturerId)
+ФЗ : GroupId, CourseId -> CourseName, LecturerId
+Ключ : {GroupId, CourseId}
+4) (LecturerId, LecturerName)
+ФЗ : LecturerId -> LecturerName
+Ключ : {LecturerId}
+5) (CourseId, StudentId, Mark)
+ФЗ : CourseId, StudentId -> Mark
+Ключ : {CourseId, StudentId}
+
+Как мы видим, в каждой нетривиальной функциональной зависимости X -> Y, X является ключом (=> надключом)
+Отношения удовлетворяют НФ Бойса-Кодда
+
+Б.2. Результат *
+Для каждого отношения из предыдущей нормальной формы укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...». Где все отношения заданы в формате «(атрибут1, атрибут2, ...)»
+
+(StudentId, StudentName, GroupId) => (StudentId, StudentName, GroupId)
+(GroupId, GroupName) => (GroupId, GroupName)
+(GroupId, CourseId, CourseName, LecturerId) => (GroupId, CourseId, CourseName, LecturerId)
+(LecturerId, LecturerName) => (LecturerId, LecturerName)
+(CourseId, StudentId, Mark) => (CourseId, StudentId, Mark)
+
+4. Четвёртая нормальная форма
+4.1. Описание *
+Выпишем все отношения с ФЗ и ключами и рассмотрим их с точки зрения теорем Дейта-Фейгина
+1) (StudentId, StudentName, GroupId)
+ФЗ : StudentId -> StudentName, GroupId
+Ключ : {StudentId}
+Простой ключ => отношение находится в 5НФ (по теореме Дейта-Фейгина 1)
+2) (GroupId, GroupName)
+ФЗ : GroupId -> GroupName
+Ключ : {GroupId}
+Простой ключ => отношение находится в 5НФ (по теореме Дейта-Фейгина 1)
+3) (GroupId, CourseId, CourseName, LecturerId)
+ФЗ : GroupId, CourseId -> CourseName, LecturerId
+Ключ : {GroupId, CourseId}
+4) (LecturerId, LecturerName)
+ФЗ : LecturerId -> LecturerName
+Ключ : {LecturerId}
+Простой ключ => отношение находится в 5НФ (по теореме Дейта-Фейгина 1)
+5) (CourseId, StudentId, Mark)
+ФЗ : CourseId, StudentId -> Mark
+Ключ : {CourseId, StudentId}
+
+Следовательно будем рассматривать только отношения 3 и 5
+
+Переберем все многозначные нетривиальные зависимости для 5 отношения
+CourseId ->> StudentId | Mark -- такой многозначной зависимости нет, потому что для заданного курса множество StudentId с разными оценками по этому курсу может не совпадать (исходя из определения многозначной зависимости), а значит нет и CourseId ->> Mark | StudentId
+StudentId ->> Mark | CourseId -- неверно, т.к. множество
+Mark ->> StudentId | CourseId
+
+CourseId StudentId Mark
+1           2
+
+
+4.2. Результат *
+Для каждого отношения из предыдущей нормальной формы укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...». Где все отношения заданы в формате «(атрибут1, атрибут2, ...)»
+5. Пятая нормальная форма
+5.1. Описание *
+5.2. Результат *
+Для каждого отношения из предыдущей нормальной формы укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...». Где все отношения заданы в формате «(атрибут1, атрибут2, ...)»
+6. Модели
+6. Диаграммы ERM и PDM *
+Картинка размером не больше 1920x1080. В левой половине — ERM. В правой — PDM. Для удобства чтения таблицы должны находиться на тех же местах, что и сущности/связи/ассоциации, из которых они получены. Рекомендуется использовать прямые линии (а не дуги) и избегать пересечений.
+7. SQL
+Помните, что SQL – это язык программирования, и не забывайте о форматировании и отступах
+7.1. DDL *
+Схема базы данных
+7.2. DML *
+Пример тестовых данных. Достаточно 2-3 записей на таблицу, если они в полной мере демонстрируют особенности БД. Для удобства чтения данные должны быть записаны в том же порядке, что и в схеме.

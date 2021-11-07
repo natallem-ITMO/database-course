@@ -1,0 +1,16 @@
+select 
+		s.StudentId as StudentId, 
+		s.StudentName as StudentName,
+		s.GroupId as GroupId
+	from 
+		Students s
+		inner join Marks m  on m.StudentId = s.StudentId
+		inner join 
+			(
+				select 
+						CourseId
+					from 
+						Plan
+					where LecturerId = :LecturerId
+			) c on m.CourseId = c.CourseId
+	where Mark = :Mark

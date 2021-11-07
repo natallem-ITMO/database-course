@@ -1,0 +1,20 @@
+HaveCourses(StudentId, CourseId) :-
+    Students(StudentId, _, GroupId),
+    Plan(GroupId, CourseId, _).
+HaveMarks(StudentId, CourseId) :-
+    HaveCourses(StudentId, CourseId),
+    Marks(StudentId, CourseId, _).
+HavePositiveMarks(StudentId, CourseId) :-
+    HaveCourses(StudentId, CourseId),
+    Marks(StudentId, CourseId, Mark),
+    Mark > 2.
+Failed(StudentId, CourseId) :-
+    HaveCourses(StudentId, CourseId),
+    not HaveMarks(StudentId, CourseId).
+Failed(StudentId, CourseId) :-
+    HaveMarks(StudentId, CourseId),
+    not HavePositiveMarks(StudentId, CourseId).
+FailedNames(StudentName, CourseName) :-
+    Failed(StudentId, CourseId),
+    Students(StudentId, StudentName, _),
+    Courses(CourseId, CourseName).

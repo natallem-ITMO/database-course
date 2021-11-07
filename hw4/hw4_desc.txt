@@ -1,0 +1,448 @@
+1.1. Описание *
+
+Из предыдущего домашнего задания имеем следующие ФЗ
+
+StudentId -> StudentName, GroupId -- Id задает информацию о студенте: его имя и группу
+GroupId -> GroupName -- Id группы задают ее название
+GroupName -> GroupId -- т.к. названия групп уникальны
+CourseId -> CourseName -- Id предмета задает его название
+GroupId, CourseId -> LecturerId -- Конкретный лектор ведет курс у конкретной группы
+LecturerId -> LecturerName -- Id лектора задает его имя
+CourseId, StudentId -> Mark -- Для студента с конкретным Id и для конкретного курса задана оценка
+
+Ключ: {StudentId, CourseId}
+    т.к. эти атрибуты не содержаться в правой части => входят в любой надключ
+    замыкание {StudentId, CourseId} = {StudentId, CourseId, StudentName, GroupId, GroupName, CourseName, LecturerId, LecturerName, Mark} - множество всех атрибутов => это надключ
+    замыкание {StudentId} = {StudentId, StudentName, GroupId, GroupName}
+    замыкание {CourseId} = {CourseId, CourseName}
+    Получаем, что это надключ, причем минимальный => ключ (и единственный)
+
+Отношениe удовлетворяют 1НФ:
+	В отношении нет повторяющихся групп
+	Все атрибуты атомарны
+	У отношения есть ключ - {StudentId, CourseId}
+
+1.2. Результат *
+Для исходного отношения укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...», по одному на строке. Где все отношения заданы в формате «(атрибут1, атрибут2, ...)». Строки, начинающиеся с двух минусов ( -- ) будут считаться комментариями.
+
+(StudentId, StudentName, GroupId, GroupName, CourseId, CourseName, LecturerId, LecturerName, Mark) => (StudentId, StudentName, GroupId, GroupName, CourseId, CourseName, LecturerId, LecturerName, Mark)
+
+2. Вторая нормальная форма
+2.1. Описание *
+
+Требования 2НФ:
+	1НФ - получена на предыдущем шаге
+	Неключевые атрибуты функционально зависят от ключа в целом (не от части ключа)
+Замечаем нарушение этого условия для правила {StudentId -> StudentName, GroupId}. Необходимо разбить отношение на 2:
+1) (StudentId, StudentName, GroupId)
+ФЗ: StudentId -> StudentName, GroupId
+Ключ: {StudentId} 
+	(замыкание StudentId, очевидно, дает множество всех атрибутов отношения, следовательно это надключ, минимальный надключ (т.к. атрибут в надключе один), а так же StudentId нет в правой части, следовательно он должен входить в любой надключ).
+2) (StudentId, GroupId, GroupName, CourseId, CourseName, LecturerId, LecturerName, Mark) c ФЗ:
+	GroupId -> GroupName
+	GroupName -> GroupId
+	CourseId -> CourseName
+	GroupId, CourseId -> LecturerId
+	LecturerId -> LecturerName
+	CourseId, StudentId -> Mark
+Докажем, что {StudentId, CourseId, GroupId} - ключ (возможно, не единственный).
+	* Замыкание {StudentId, CourseId, GroupId} = {StudentId, CourseId, GroupId, GroupName, CourseName, LecturerId, LecturerName, Mark} - множество всех атрибутов => надключ
+	* Уберем StudentId: замыкание {CourseId, GroupId} = {CourseId, GroupId, GroupName, CourseName, LecturerId, LecturerName} != мно-ву всех атрибутов => нельзя убрать атрибут из надключа
+	* Уберем CourseId: замыкание {StudentId, GroupId} = {StudentId, GroupId, GroupName} != мно-ву всех атрибутов => нельзя убрать атрибут из надключа
+	* Уберем GroupId: замыкание {StudentId, CourseId} = {StudentId, CourseId, CourseName, Mark} != мно-ву всех атрибутов => нельзя убрать атрибут из надключа
+
+Получаем, что никакой атрибут нельзя убрать из надключа => это ключ. 
+
+Раз это ключ, то заметим, что ФЗ {GroupId -> GroupName ; CourseId -> CourseName ; GroupId, CourseId -> LecturerId ; CourseId, StudentId -> Mark} нарушают требование 2НФ. Необходимо разбить отношение :
+
+2.1) (GroupId, GroupName)
+	ФЗ: GroupId -> GroupName
+	    GroupName -> GroupId
+	Ключи: {GroupId}, {GroupName}
+	    GroupId ключ, т.к. его замыкание равно множеству всех атрибутов => надключ, а так же он минимален
+	    GroupName ключ, т.к. его замыкание равно множеству всех атрибутов => надключ, а так же он минимален
+	    {GroupName, GroupId} тоже надключ (очевидно), но явно не минимальный
+
+2.2) (CourseId, CourseName)
+	ФЗ: CourseId -> CourseName
+	Ключ: {CourseId} 
+		(атрибут не содержится в левой части => должен содержаться в любом надключе, замыкание очевидно дает множество всех атрибутов + это минимальный надключ, потому что атрибут единственный)
+
+2.3) (GroupId, CourseId, LecturerId, LecturerName)
+	ФЗ: GroupId, CourseId -> LecturerId
+		LecturerId -> LecturerName
+	Ключ: {GroupId, CourseId} 
+		(атрибуты не содержатся в левой части => должны содержаться в любом надключе, замыкание {GroupId, CourseId} = {GroupId, CourseId, LecturerId, LecturerName} (множество всех атрибутов) + это минимальный надключ (замыкание {GroupId} = {GroupId} != мно-во всех атрибутов, замыкание {CourseId} = {CourseId} != мно-во всех атрибутов))
+
+2.4) (CourseId, StudentId, Mark)
+	ФЗ: CourseId, StudentId -> Mark
+	Ключ: {CourseId, StudentId} 
+		(атрибуты не содержатся в левой части => должны содержаться в любом надключе, замыкание очевидно дает множество всех атрибутов + это минимальный надключ (замыкание {StudentId} = {StudentId} != мно-во всех атрибутов, замыкание {CourseId} = {CourseId} != мно-во всех атрибутов))
+
+2.2. Результат *
+Для каждого отношения из предыдущей нормальной формы укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...». Где все отношения заданы в формате «(атрибут1, атрибут2, ...)»
+
+
+(StudentId, StudentName, GroupId, GroupName, CourseId, CourseName, LecturerId, LecturerName, Mark) => (StudentId, StudentName, GroupId) ; (GroupId, GroupName) ; (CourseId, CourseName) ; (GroupId, CourseId, LecturerId, LecturerName) ; (CourseId, StudentId, Mark) ;
+
+3. Третья нормальная форма
+3.1. Описание *
+
+Для отношения (GroupId, CourseId, LecturerId, LecturerName) с ФЗ:
+	GroupId, CourseId -> LecturerId
+	LecturerId -> LecturerName
+и ключом {GroupId, CourseId}
+
+заметим транзитивную зависимость GroupId, CourseId -> LecturerId ; LecturerId -> LecturerName. 
+Разобьем на 2 отношения 
+
+	1) (GroupId, CourseId, LecturerId) с ФЗ {GroupId, CourseId -> LecturerId} и ключом {GroupId, CourseId} ({GroupId, CourseId} не сдержатся в левой части => должны содержаться во надключе,замыкание очевидно дает множество всех атрибутов + это минимальный надключ (замыкание {GroupId} = {GroupId},  замыкание {CourseId} = {CourseId})) 
+
+	2) (LecturerId, LecturerName) с ФЗ {LecturerId -> LecturerName} и ключом {LecturerId} (LecturerId не содержится в левой части => должен содержаться во надключе, замыкание очевидно дает множество всех атрибутов + это минимальный надключ)
+
+
+3.2. Результат *
+Для каждого отношения из предыдущей нормальной формы укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...». Где все отношения заданы в формате «(атрибут1, атрибут2, ...)»
+
+(StudentId, StudentName, GroupId) => (StudentId, StudentName, GroupId) ;
+(GroupId, GroupName) => (GroupId, GroupName) ;
+(CourseId, CourseName) => (CourseId, CourseName) ;
+(GroupId, CourseId, LecturerId, LecturerName) => (GroupId, CourseId, LecturerId) ; (LecturerId, LecturerName) ;
+(CourseId, StudentId, Mark) => (CourseId, StudentId, Mark) ;
+
+
+Б. Нормальная форма Бойса-Кодта
+Б.1. Описание *
+Выпишем все отношения с ФЗ и ключами
+1) (StudentId, StudentName, GroupId)
+ФЗ : StudentId -> StudentName, GroupId
+Ключ : {StudentId}
+2) (GroupId, GroupName)
+ФЗ : GroupId -> GroupName
+     GroupName -> GroupId
+Ключ : {GroupId}, {GroupName}
+3) (CourseId, CourseName)
+ФЗ: CourseId -> CourseName
+Ключ: {CourseId}
+4) (GroupId, CourseId, LecturerId)
+ФЗ : GroupId, CourseId -> LecturerId
+Ключ : {GroupId, CourseId}
+5) (LecturerId, LecturerName)
+ФЗ : LecturerId -> LecturerName
+Ключ : {LecturerId}
+6) (CourseId, StudentId, Mark)
+ФЗ : CourseId, StudentId -> Mark
+Ключ : {CourseId, StudentId}
+
+Как мы видим, в каждой нетривиальной функциональной зависимости X -> Y, X является ключом (=> надключом)
+Отношения удовлетворяют НФ Бойса-Кодда
+
+Б.2. Результат *
+Для каждого отношения из предыдущей нормальной формы укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...». Где все отношения заданы в формате «(атрибут1, атрибут2, ...)»
+
+(StudentId, StudentName, GroupId) => (StudentId, StudentName, GroupId) ;
+(GroupId, GroupName) => (GroupId, GroupName) ;
+(CourseId, CourseName) => (CourseId, CourseName) ;
+(GroupId, CourseId, LecturerId) => (GroupId, CourseId, LecturerId) ;
+(LecturerId, LecturerName) => (LecturerId, LecturerName) ;
+(CourseId, StudentId, Mark) => (CourseId, StudentId, Mark) ;
+
+4. Четвёртая нормальная форма
+4.1. Описание *
+В отношениях 1, 2, 3, 5 все ключи простые => отношения находится в 5НФ (по теореме Дейта-Фейгина 1)
+Рассматриваем отношения 4 и 6
+Переберем все многозначные нетривиальные зависимости для 4 отношения (GroupId, CourseId, LecturerId)
+    Далее во всех контрпримеров рассматривается следующий пример базы данных
+        GroupId     CourseId   LecturerId
+            1           2          3
+            1           4          2
+            2           2          2
+            2           3          1
+    1)  GroupId ->> CourseId | LecturerId -- не МЗ
+        Контрпример:
+        При GroupId=1 при LecturerId = 2, 3 мно-ва CouseId не совпадают ({2} != {4})
+        (значит и GroupId ->> LecturerId | CourseId не МЗ)
+
+    2)  CourseId ->> GroupId | LecturerId -- не МЗ
+        Контрпример:
+        При CourseId=2 при LecturerId = 2, 3 мно-ва GroupId не совпадают ({1} != {2})
+        (значит и CourseId ->> LecturerId | GroupId не МЗ)
+
+    3) LecturerId ->> GroupId | CourseId -- не МЗ
+        Контрпример:
+        При LecturerId=2 при CourseId = 2, 4 мно-ва GroupId не совпадают ({1} != {2})
+        (значит и LecturerId ->> CourseId | GroupId не МЗ)
+
+    4) ∅ ->> GroupId | CourseId LecturerId -- не МЗ
+        Контрпример:
+        При {CourseId, LecturerId}={4, 2}, {2, 2} мно-ва GroupId не совпадают ({1} != {2})
+        (значит и ∅ ->> CourseId LecturerId | GroupId не МЗ)
+
+    5) ∅ ->> CourseId | GroupId LecturerId -- не МЗ
+        Контрпример:
+        При {GroupId, LecturerId}={1, 3}, {1, 2} мно-ва CourseId не совпадают ({2} != {3})
+        (значит и ∅ ->> GroupId LecturerId | CourseId не МЗ)
+
+    6) ∅ ->> LecturerId | GroupId CourseId-- не МЗ
+        Контрпример:
+        При {GroupId, CourseId}={1, 2}, {1, 4} мно-ва LecturerId не совпадают ({3} != {2})
+        (значит и ∅ ->> CourseId GroupId | LecturerId не МЗ)
+
+    Итого, в данном отношении нет нетривиальных МЗ
+
+
+Переберем все многозначные нетривиальные зависимости для 6 отношения (CourseId, StudentId, Mark)
+    Далее во всех контрпримеров рассматривается следующий пример базы данных
+        CourseId     StudentId   Mark
+            1           2          3
+            1           4          4
+            2           2          4
+            2           3          5
+    1)  CourseId ->> StudentId | Mark -- не МЗ
+        Контрпример:
+        При CourseId=1 при Mark = 3, 4 мно-ва StudentId не совпадают ({2} != {4})
+        (значит и CourseId ->> Mark | StudentId не МЗ)
+
+    2)  StudentId ->> CourseId | Mark -- не МЗ
+        Контрпример:
+        При StudentId=2 при Mark = 3, 4 мно-ва CourseId не совпадают ({1} != {2})
+        (значит и StudentId ->> Mark | CourseId не МЗ)
+
+    3) Mark ->> StudentId | CourseId -- не МЗ
+       Контрпример:
+       При Mark=4 при CourseId = 1, 2 мно-ва StudentId не совпадают ({4} != {2})
+       (значит и Mark ->> CourseId | StudentId не МЗ)
+
+    4) ∅ ->> CourseId | StudentId Mark -- не МЗ
+            Контрпример:
+            При {StudentId, Mark}={4, 4}, {2, 4} мно-ва CourseId не совпадают ({1} != {2})
+            (значит и ∅ ->> StudentId Mark | CourseId не МЗ)
+
+    5) ∅ ->> StudentId | CourseId Mark -- не МЗ
+        Контрпример:
+        При {CourseId, Mark}={1, 3}, {1, 4} мно-ва StudentId не совпадают ({2} != {3})
+        (значит и ∅ ->> CourseId Mark | StudentId не МЗ)
+
+    6) ∅ ->> Mark | CourseId StudentId-- не МЗ
+        Контрпример:
+        При {CourseId, StudentId}={1, 2}, {1, 4} мно-ва Mark не совпадают ({3} != {2})
+        (значит и ∅ ->> StudentId CourseId | Mark не МЗ)
+
+    Итого, в данном отношении нет нетривиальных МЗ
+
+Тогда, получаем, что каждая нетривиальная МЗ является ФЗ и, т.к. отношения 4, 6 уже находятся в НФБК, то они находятся и в 4НФ
+
+4.2. Результат *
+Для каждого отношения из предыдущей нормальной формы укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...». Где все отношения заданы в формате «(атрибут1, атрибут2, ...)»
+
+(StudentId, StudentName, GroupId) => (StudentId, StudentName, GroupId) ;
+(GroupId, GroupName) => (GroupId, GroupName) ;
+(CourseId, CourseName) => (CourseId, CourseName) ;
+(GroupId, CourseId, LecturerId) => (GroupId, CourseId, LecturerId) ;
+(LecturerId, LecturerName) => (LecturerId, LecturerName) ;
+(CourseId, StudentId, Mark) => (CourseId, StudentId, Mark) ;
+
+5. Пятая нормальная форма
+5.1. Описание *
+
+Найдем или докажем, что в отношениях 4 и 6 из предыдущего пункта нет ЗС.
+В обоих случаях у нас есть 3 атрибута (назовем их A, B, C).
+Нам нужно проверить все нетривиальные ЗС на этих атрибутах. Очевидно, что не стоит рассматривать случаи, когда в подмножества атрибутов в предполагаемой ЗС входит другой атрибут из этой же ЗС (т.е. мы не рассматриваем случаи *{A, AB, AC}, т.к. А входит во второе подмножество атрибутов AB и данная проверка эквивалентна проверке *{AB, AC}), т.е. подмножества атрибутов в проверяемой ЗС могут пересекаться, но не вкладываться друг в друга.
+Так же нет смысла рассматривать в качестве одного из подмножества атрибутов для ЗС все ABС атрибуты, ведь тогда у нас будет тривиальная ЗС.
+Получается, что мы можем рассматривать лишь подмножества атрибутов A, B, C, AB, AC, CB.
+Случаи из 2 групп проверены на предыдущем шаге (по теореме Фейгина такие ЗС эквиваленты МЗ, доказали отсутствие)
+Для случая 3 групп подмножеств атрибутов ЗС имеем:
+*{A, B, C}
+*{AB, BC, AC}
+Для случая 4+ групп по принципу Дерихле мы не сможем распределить подмножества атрибутов без повторений и без тривиальных ЗС
+Разбор случаев для отношения 4 (GroupId, CourseId, LecturerId) (обозначим за (A, B, C) соответственно)
+    *{A, B, C} верен, если отношение всегда представляет декартово произведение, но это неправда хотя бы для такой БД:
+    GroupId     CourseId    LecturerId
+        1           3           5
+        2           3           6
+        1           4           6
+    *{AB, BC, AC} <=> *{{GroupId, CourseId}, {CourseId, LecturerId}, {LecturerId, GroupId}}
+    Контрпример по базе выше. Проекции:
+    GroupId     CourseId
+        1           3
+        2           3
+        1           4
+    CourseId    LecturerId
+        3           5
+        3           6
+        4           6
+    GroupId     LecturerId
+        1           5
+        2           6
+        1           6
+    Соединение:
+    GroupId     CourseId    LecturerId
+        1           3           5
+        1           3           6
+        2           3           6
+        1           4           6
+Разбор случаев для отношения 4 (CourseId, StudentId, Mark) (обозначим за (A, B, C) соответственно)
+    *{A, B, C} верен, если отношение всегда представляет декартово произведение, но это неправда хотя бы для такой БД:
+    CourseId    StudentId       Mark
+        1           3           5
+        2           3           4
+        1           4           4
+    *{AB, BC, AC} <=> *{{CourseId, StudentId}, {StudentId, Mark}, {Mark, CourseId}}
+    Контрприме по базе выше. Проекции:
+    CourseId    StudentId
+        1           3
+        2           3
+        1           4
+    StudentId       Mark
+        3           5
+        3           4
+        4           4
+    CourseId        Mark
+        1           5
+        2           4
+        1           4
+    Соединение:
+    CourseId    StudentId       Mark
+        1           3           5
+        1           3           4
+        2           3           4
+        1           4           4
+Итого, в 4 и 6 отношении нет ЗС, следовательно все отношения уже находятся в 5НФ
+
+5.2. Результат *
+Для каждого отношения из предыдущей нормальной формы укажите на какие отношения вы его разбили в формате «Исходное отношение => полученное отношение ; полученное отношение ; ...». Где все отношения заданы в формате «(атрибут1, атрибут2, ...)»
+    (StudentId, StudentName, GroupId) => (StudentId, StudentName, GroupId)
+    (GroupId, GroupName) => (GroupId, GroupName)
+    (CourseId, CourseName) => (CourseId, CourseName)
+    (GroupId, CourseId, LecturerId) => (GroupId, CourseId, LecturerId)
+    (LecturerId, LecturerName) => (LecturerId, LecturerName)
+    (CourseId, StudentId, Mark) => (CourseId, StudentId, Mark)
+
+6. Модели
+6. Диаграммы ERM и PDM *
+Картинка размером не больше 1920x1080. В левой половине — ERM. В правой — PDM. Для удобства чтения таблицы должны находиться на тех же местах, что и сущности/связи/ассоциации, из которых они получены. Рекомендуется использовать прямые линии (а не дуги) и избегать пересечений.
+7. SQL
+Помните, что SQL – это язык программирования, и не забывайте о форматировании и отступах
+7.1. DDL *
+Схема базы данных
+CREATE TABLE "Groups" (
+    "GroupId" int   NOT NULL,
+    "GroupName" varchar(8)   NOT NULL,
+    CONSTRAINT "pk_Groups" PRIMARY KEY (
+        "GroupId"
+    )
+);
+
+CREATE TABLE "Students" (
+    "StudentId" int   NOT NULL,
+    "StudentName" varchar(255)   NOT NULL,
+    "GroupId" int   NOT NULL,
+    CONSTRAINT "pk_Students" PRIMARY KEY (
+        "StudentId"
+    ),
+    CONSTRAINT "fk_Students_GroupId"
+        FOREIGN KEY("GroupId") 
+        REFERENCES "Groups" ("GroupId")
+);
+
+CREATE TABLE "Courses" (
+    "CourseId" int   NOT NULL,
+    "CourseName" varchar(255)   NOT NULL,
+    CONSTRAINT "pk_Courses" PRIMARY KEY (
+        "CourseId"
+    )
+);
+
+CREATE TABLE "Marks" (
+    "CourseId" int   NOT NULL,
+    "StudentId" int   NOT NULL,
+    "Mark" int   NOT NULL,
+    CONSTRAINT "pk_Marks" PRIMARY KEY (
+        "CourseId",
+        "StudentId"
+    ),
+    CONSTRAINT "fk_Marks_CourseId" 
+        FOREIGN KEY("CourseId") 
+        REFERENCES "Courses" ("CourseId"),
+    CONSTRAINT "fk_Marks_StudentId" 
+        FOREIGN KEY("StudentId") 
+        REFERENCES "Students" ("StudentId")
+);
+
+CREATE TABLE "Lecturers" (
+    "LecturerId" int NOT NULL,
+    "LecturerName" varchar(255) NOT NULL,
+    CONSTRAINT "pk_Lecturers" PRIMARY KEY (
+        "LecturerId"
+    )
+);
+
+CREATE TABLE "Plans" (
+    "CourseId" int NOT NULL,
+    "GroupId" int NOT NULL,
+    "LecturerId" int NOT NULL,
+    CONSTRAINT "pk_Plans" PRIMARY KEY (
+        "CourseId",
+        "GroupId"
+    ),
+    CONSTRAINT "fk_Plans_CourseId" 
+        FOREIGN KEY("CourseId") 
+        REFERENCES "Courses" ("CourseId"),
+    CONSTRAINT "fk_Plans_GroupId" 
+        FOREIGN KEY("GroupId") 
+        REFERENCES "Groups" ("GroupId"),
+    CONSTRAINT "fk_Plans_LecturerId" 
+        FOREIGN KEY("LecturerId") 
+        REFERENCES "Lecturers" ("LecturerId")
+);
+
+7.2. DML *
+Пример тестовых данных. Достаточно 2-3 записей на таблицу, если они в полной мере демонстрируют особенности БД. Для удобства чтения данные должны быть записаны в том же порядке, что и в схеме.
+INSERT INTO "Groups"
+    ("GroupId", "GroupName") VALUES
+    (1, 'M34381'),
+    (2, 'M34391'),
+    (3, 'M34342');
+
+INSERT INTO "Students"
+    ("StudentId", "StudentName", "GroupId") VALUES
+    (1, 'Агеев Роман Сергеевич', 1),
+    (2, 'Акимов Николай Сергеевич', 1),
+    (3, 'Акназаров Арслан Робертович', 2),
+    (4, 'Бадикова Анастасия Вячеславовна', 3);
+
+INSERT INTO "Courses"
+    ("CourseId", "CourseName") VALUES
+    (1,'Базы данных'),
+    (2,'Теория кодирования'),
+    (3,'Физическая культура'),
+    (4,'Проектирование программного обеспечения');
+
+INSERT INTO "Marks"
+    ("CourseId", "StudentId", "Mark") VALUES
+    (1, 1, 4),
+    (2, 1, 4),
+    (3, 1, 4),
+    (4, 1, 4),
+    (1, 2, 4),
+    (1, 3, 5),
+    (3, 4, 5);
+
+INSERT INTO "Lecturers"  
+    ("LecturerId", "LecturerName") VALUES
+    (1, 'Георгий Александрович Корнеев'),
+    (2, 'Трифонов Петр Владимирович'),
+    (3, 'Мухамадеев Ренат Рустамович'),
+    (4, 'Киракозов Александр Христофорович');
+
+INSERT INTO "Plans"
+    ("CourseId", "GroupId", "LecturerId") VALUES
+    (1, 1, 1),
+    (2, 1, 2),
+    (3, 1, 3),
+    (4, 1, 4),
+    (1, 2, 1),
+    (3, 3, 3);
+
+
+    Описание не влезает в гугл форму (пишет "Your response is too large. Try shortening some answers.", видимо, из-за таблиц для контрпримеров), поэтому пришлось разместить описание в pastebin: https://pastebin.com/6pWwvMgZ

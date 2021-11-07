@@ -1,0 +1,1 @@
+π{StudentId}(pi{StudentId, CourseId}(Marks)) diff pi{StudentId}((pi{StudentId}(pi{StudentId, CourseId}(Marks)) cjoin (pi{CourseId}(sigma{LecturerName = :LecturerName}(Plan nj Lecturers)))) diff (pi{StudentId, CourseId}(Marks)))

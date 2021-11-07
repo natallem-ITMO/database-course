@@ -1,0 +1,12 @@
+select distinct 
+    StudentId
+from Students
+except
+    select distinct
+        StudentId
+    from 
+        Students
+        natural join Lecturers
+        natural join Plan 
+        natural join Marks 
+    where LecturerName = :LecturerName

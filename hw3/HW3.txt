@@ -1,0 +1,179 @@
+StudentId, StudentName, GroupId, GroupName, CourseId, CourseName, LecturerId, LecturerName, Mark
+
+1
+
+StudentId -> StudentName, GroupId -- Id задает информацию о студенте: его имя и группу
+GroupId -> GroupName -- Id группы задают ее название
+GroupId, CourseId -> CourseName, LecturerId -- Id группы и Id предмета задает конкретный предмет для данной группы и, соответственно, его название
+GroupId, CourseId, StudentId -> Mark -- Для студента с конкретным Id из конкретной группы и для конкретного курса задана оценка
+LecturerId -> LecturerName -- Id лектора задает его имя
+
+2
+
+Мы знаем, что {StudentId, StudentName, GroupId, GroupName, CourseId, CourseName, LecturerId, LecturerName, Mark} - надключ
+Так же видно, что StudentIt и CourseId не стоит в ФЗ в правой части => атрибуты будут входить в любой ключ
+Транзитивное замыкание {StudentIt, CourseId} :
+	{StudentIt, CourseId, StudentName, GroupId} -- 1st rule
+	{StudentIt, CourseId, StudentName, GroupId, GroupName} -- 2 rule
+	{StudentIt, CourseId, StudentName, GroupId, GroupName, CourseName, LecturerId} -- 3 rule
+	{StudentIt, CourseId, StudentName, GroupId, GroupName, CourseName, LecturerId, Mark} -- 4 rule
+	{StudentIt, CourseId, StudentName, GroupId, GroupName, CourseName, LecturerId, Mark, LecturerName} -- 5 rule 
+Получили множество всех атрибутов => {StudentIt, CourseId} - надключ.
+Докажем, что он является ключом.
+1) Выкинем StudentIt. Транзитивное замыкание {CourseId}: {CourseId} => {CourseId} не надключ => не ключ
+2) Выкинем CourseId. Транзитивное замыкание {StudentIt}: 
+	{StudentIt, StudentName, GroupId} -- 1st rule
+	{StudentIt, StudentName, GroupId, GroupName} -- 2nd rule
+Транзитивное замыкание не дает полное множество атрибутов => {StudentIt} - не надключ => не ключ.
+
+Таким образом, доказали, что {StudentIt, CourseId} - ключ. Так же тот факт, что StudentIt и CourseId будут входить в любой ключ (т.к. стоят только в левой части ФЗ) говорит о том, что эти атрибуты будут входить во все возможные ключи, а значит мы нашли множество ключе, состоящее из единственного ключа {StudentIt, CourseId}.
+
+}
+Не является множеством всех атрибутов => StudentId не ключ.
+
+Проверим, является ли надключом изначальное множество без CourseId. Построим транзитивное замыкание {StudentId, StudentName, GroupId, GroupName, CourseName, LecturerId, LecturerName, Mark}:
+	
+3.1 GroupId, CourseId
+
+{GroupId, CourseId, GroupName}
+{GroupId, CourseId, GroupName, CourseName, LecturerId}
+{GroupId, CourseId, GroupName, CourseName, LecturerId, LecturerName}
+
+3.2 StudentId, CourseId 
+
+{StudentIt, CourseId, StudentName, GroupId}
+{StudentIt, CourseId, StudentName, GroupId, GroupName}
+{StudentIt, CourseId, StudentName, GroupId, GroupName, CourseName, LecturerId}
+{StudentIt, CourseId, StudentName, GroupId, GroupName, CourseName, LecturerId, Mark}
+{StudentIt, CourseId, StudentName, GroupId, GroupName, CourseName, LecturerId, Mark, LecturerName} 
+
+
+3.3 StudentId, LecturerId, 
+
+{StudentId, LecturerId, StudentName, GroupId}
+{StudentId, LecturerId, StudentName, GroupId, GroupName}
+{StudentId, LecturerId, StudentName, GroupId, GroupName, LecturerName}
+
+4.1d
+Делаем все правые части единичными:
+	Есть 2 правила с неединичными правыми частями.
+		StudentId -> StudentName, GroupId 
+		GroupId, CourseId -> CourseName, LecturerId
+	По правилу расщипления получим
+		StudentId -> StudentName
+		StudentId -> GroupId 
+		GroupId, CourseId -> CourseName
+		GroupId, CourseId -> LecturerId
+
+4.2r
+
+StudentId -> StudentName
+StudentId -> GroupId 
+GroupId -> GroupName
+GroupId, CourseId -> CourseName
+GroupId, CourseId -> LecturerId
+GroupId, CourseId, StudentId -> Mark
+LecturerId -> LecturerName
+
+
+4.2d
+Для левой части из набора правил
+
+	1) GroupId, CourseId, StudentId -> Mark
+	2) GroupId, CourseId -> CourseName
+	3) GroupId, CourseId -> LecturerId
+
+пытаемся удалить по одному атрибуту:
+
+1) GroupId, CourseId, StudentId -> Mark
+	a) Удалим GroupId
+	Тразитивное замыкание {CourseId, StudentId} включает в себя Mark т.к. это ключ в исходном ФЗ, поэтому добавляем правило CourseId, StudentId -> Mark
+	б) Удалим CourseId
+	Транзитивное замыкание {GroupId, StudentId} :
+		{GroupId, StudentId, StudentName}
+		{GroupId, StudentId, StudentName, GroupName} - не содержит в себе Mark => не добавляем правило GroupId, StudentId -> Mark
+	в) Удалим StudentId
+	Транзитивное замыкание {GroupId, CourseId} :
+		{GroupId, CourseId, GroupName}
+		{GroupId, CourseId, GroupName, CourseName}
+		{GroupId, CourseId, GroupName, CourseName, LecturerId}
+		{GroupId, CourseId, GroupName, CourseName, LecturerId, LecturerName} - не содержит в себе Mark => не добавляем правило GroupId, CourseId -> Mark
+
+	
+2) GroupId, CourseId -> CourseName
+	а) Удалим GroupId. Замыкание {CourseId} : {CourseId} . Оно не содержит CourseName => не добавляем правило
+	б) Удалим CourseId. Замыкание {GroupId} : {GroupId, GroupName}. Не содержит CourseId => не добавляем правило
+
+3) GroupId, CourseId -> LecturerId
+	а) Удалим GroupId. Замыкание {CourseId} : {CourseId} . Оно не содержит LecturerId => не добавляем правило
+	б) Удалим CourseId. Замыкание {GroupId} : {GroupId, GroupName}. Не содержит LecturerId => не добавляем правило
+
+4) CourseId, StudentId -> Mark (это правило было добавлено на 1 шаге)
+	а) Удалим CourseId. Замыкание {StudentId} : {StudentIt, StudentName, GroupId, GroupName} (находилось в пунктах выше). Не содержит Mark => не добавляем правило
+	б) Удалим StudentId. Замыкание {CourseId} : {CourseId} . Оно не содержит Mark => не добавляем правило
+
+
+4.2r
+
+StudentId -> StudentName
+StudentId -> GroupId 
+GroupId -> GroupName
+GroupId, CourseId -> CourseName
+GroupId, CourseId -> LecturerId
+GroupId, CourseId, StudentId -> Mark
+LecturerId -> LecturerName
+CourseId, StudentId -> Mark
+
+4.3d
+
+Под S подразумевается набор ФЗ из 4.2r
+
+1) Удаление StudentId -> StudentName
+Замыкание {StudentId} (на ФЗ без 1го правила):
+	{StudentId, GroupId}
+	{StudentId, GroupId, GroupName} - не содержит StudentName => нельзя удалить правило
+2) Удаление StudentId -> GroupId 
+Замыкание {StudentId} на S \ {StudentId -> GroupId}
+	{StudentId, StudentName} - не содержит GroupId => нельзя удалить правило
+3) Удаление GroupId -> GroupName
+Замыкание {StudentId} на S \ {GroupId -> GroupName} не будет содержать GroupName, т.к. мы удалили единственное правило, которое содержало этот атрибут в правой части, его неоткуда получить => правило удалить нельзя
+
+4) Удалим GroupId, CourseId -> CourseName
+Замыкание {GroupId, CourseId} на S\{GroupId, CourseId -> CourseName} не будет содержать CourseName, т.к. мы удалили единственное правило, которое содержало этот атрибут в правой части, его неоткуда получить => правило удалить нельзя
+
+5) Удалим GroupId, CourseId -> LecturerId
+Замыкание {GroupId, CourseId} на S\{GroupId, CourseId -> LecturerId} не будет содержать LecturerId, т.к. мы удалили единственное правило, которое содержало этот атрибут в правой части, его неоткуда получить => правило удалить нельзя
+
+6) Удалим GroupId, CourseId, StudentId -> Mark
+Замыкание {GroupId, CourseId, StudentId} на S\{GroupId, CourseId, StudentId -> Mark}:
+	{GroupId, CourseId, StudentId, StudentName}
+	{GroupId, CourseId, StudentId, StudentName, GroupName}
+	{GroupId, CourseId, StudentId, StudentName, GroupName, CourseName}
+	{GroupId, CourseId, StudentId, StudentName, GroupName, CourseName, LecturerId}
+	{GroupId, CourseId, StudentId, StudentName, GroupName, CourseName, LecturerId, LecturerName}
+	{GroupId, CourseId, StudentId, StudentName, GroupName, CourseName, LecturerId, LecturerName, Mark} - содержит Mark => можно удалить правло
+
+Теперь под S подразумеваем (после удаления правила):
+	StudentId -> StudentName
+	StudentId -> GroupId 
+	GroupId -> GroupName
+	GroupId, CourseId -> CourseName
+	GroupId, CourseId -> LecturerId
+	LecturerId -> LecturerName
+	CourseId, StudentId -> Mark
+
+7)  Удалим LecturerId -> LecturerName
+Замыкание {LecturerId} на S\{LecturerId -> LecturerName} не будет содержать LecturerName, т.к. мы удалили единственное правило, которое содержало этот атрибут в правой части, его неоткуда получить => правило удалить нельзя
+
+8) CourseId, StudentId -> Mark
+Замыкание {CourseId, StudentId} на S\{CourseId, StudentId -> Mark} не будет содержать Mark, т.к. мы удалили единственное правило, которое содержало этот атрибут в правой части, его неоткуда получить => правило удалить нельзя
+
+4.3r
+
+StudentId -> StudentName
+StudentId -> GroupId 
+GroupId -> GroupName
+GroupId, CourseId -> CourseName
+GroupId, CourseId -> LecturerId
+LecturerId -> LecturerName
+CourseId, StudentId -> Mark

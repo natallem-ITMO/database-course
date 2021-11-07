@@ -1,0 +1,1 @@
+π{StudentId}(Students ⋈ (π{StudentId, CourseId}(Marks) gdiv pi{CourseId, GroupId}(σ{LecturerName = :LecturerName}(Plan ⋈ Lecturers))))

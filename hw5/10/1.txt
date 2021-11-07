@@ -1,0 +1,20 @@
+select
+	coalesce(TotalCourses.StudentId, 0) as StudentId,
+	coalesce(TotalCourses.Total, 0) as Total,
+	coalesce(PassedCourses.Passed, 0) as Passed,
+   	(coalesce(TotalCourses.Total, 0) - coalesce(PassedCourses.Passed, 0)) as Failed
+from
+	(
+	select 
+		Students.StudentId as StudentId,
+		count(Plan.CourseId) as Total
+	from
+		(select StudentId, GroupId from Students) as Students left join (select distinct GroupId, CourseId from Plan) as Plan on Students.GroupId = Plan.GroupId
+	group by Students.StudentId
+	) as TotalCourses
+	left join 
+	(select StudentId,
+     count(CourseId) as Passed 
+from Students natural join Marks natural join Plan 
+group by StudentId) as PassedCourses
+	on TotalCourses.StudentId = PassedCourses.StudentId

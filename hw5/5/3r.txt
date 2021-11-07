@@ -1,0 +1,1 @@
+π{StudentName, CourseName}(σ{Mark ≠ 4 && Mark ≠ 5}(Students ⋈ Marks ⋈ Plan ⋈ Courses)) union (π{StudentName, CourseName}(π{StudentId, StudentName, GroupId, CourseId, CourseName}(Students ⋈ Plan ⋈ Courses) ∖ π{StudentId, StudentName, GroupId, CourseId, CourseName}(Students ⋈ Marks ⋈ Courses)))

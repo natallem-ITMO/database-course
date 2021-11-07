@@ -1,0 +1,21 @@
+AllGroupCourse(GroupId, CourseId) :-
+    Courses(CourseId, _),
+    Groups(GroupId, _).
+AllStudentGroupCourse(StudentId, GroupId, CourseId) :-
+    Students(StudentId, _, GroupId),
+    AllGroupCourse(GroupId, CourseId).
+PassedStudentGroupCourse(StudentId, GroupId, CourseId) :-
+    Marks(StudentId, CourseId, _),
+    Students(StudentId, _, GroupId).
+NotPassedStudentsGroupCourse(StudentId, GroupId, CourseId) :-
+    AllStudentGroupCourse(StudentId, GroupId, CourseId),
+    not PassedStudentGroupCourse(StudentId, GroupId, CourseId).
+NotPassedGroupCourse(GroupId, CourseId) :-
+   NotPassedStudentsGroupCourse(_, GroupId, CourseId).
+Result(GroupId, CourseId) :-
+   AllGroupCourse(GroupId, CourseId),
+   not NotPassedGroupCourse(GroupId, CourseId).
+ResultName(GroupName, CourseName) :-
+   Courses(CourseId, CourseName),
+   Groups(GroupId, GroupName),
+   Result(GroupId, CourseId).

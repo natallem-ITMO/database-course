@@ -1,0 +1,13 @@
+select distinct Result.StudentId as StudentId from
+    (select Delimiter.StudentId as StudentId, Delimiter.Mark  as Mark
+    from (select Students.StudentId as StudentId, Marks.Mark as Mark from Students left join Marks on Students.StudentId = Marks.StudentId) as Delimiter
+    except 
+        select InnerDiff.StudentId as StudentId, InnerDiff.Mark as Mark from
+            (
+                select t.StudentId as StudentId, t.Mark as Mark, k.CourseId as CourseId from
+                        (select Students.StudentId as StudentId, Marks.Mark as Mark from Students left join Marks on Students.StudentId = Marks.StudentId) as t
+                        cross join
+                        (select CourseId from Plan natural join Lecturers where LecturerName = :LecturerName) as k
+                except 
+                    select Students.StudentId as StudentId, Marks.Mark as Mark, Marks.CourseId as CourseId from Students left join Marks on Students.StudentId = Marks.StudentId
+            ) as InnerDiff) as Result

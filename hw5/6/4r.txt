@@ -1,0 +1,5 @@
+π{StudentId}
+	(ρ{StudentId=StudentIdDiff}
+		(π{StudentId, CourseId}(Marks) 
+		⋇ 
+		ρ{StudentIdDiff=StudentId}(π{CourseId, StudentId}(σ{LecturerName = :LecturerName}(Students ⋈ Plan ⋈ Lecturers)))))

@@ -1,0 +1,1 @@
+π{StudentId}(sigma{LecturerName = :LecturerName}(Students ⋈ Lecturers ⋈ Plan nj Marks))

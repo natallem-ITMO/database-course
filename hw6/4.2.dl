@@ -1,0 +1,6 @@
+DoNotHaveMarks(StudentName, CourseName) :-
+    Marks(StudentId, CourseId, Mark),
+    Students(StudentId, StudentName, GroupId),
+    Plan(GroupId, CourseId, _),
+    Courses(CourseId, CourseName),
+    Mark <= 2.

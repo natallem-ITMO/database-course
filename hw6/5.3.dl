@@ -1,0 +1,14 @@
+AllStudentCourses(StudentId, CourseId) :-
+    Plan(_, CourseId, LecturerId),
+    Lecturers(LecturerId, :LecturerName),
+    Students(StudentId, _, _).
+PassedCoursesStudents(StudentId, CourseId) :-
+    Marks(StudentId, CourseId, _).
+NotPassed(StudentId, CourseId) :-
+    AllStudentCourses(StudentId, CourseId),
+    not PassedCoursesStudents(StudentId, CourseId).
+NotPassedStudents(StudentId) :-
+   NotPassed(StudentId, _).
+Result(StudentId) :-
+    Students(StudentId, _, _),
+    not NotPassedStudents(StudentId).
