@@ -1,0 +1,26 @@
+2.1. Запрос списка свободных мест
+-- NotFreeTickets - view из ДЗ9
+-- :FlightId заменяется в бекенде при запросе в бд
+-- на значение, полученное от фронта
+start transaction read only isolation level read committed;
+return query
+        select s.SeatNo as SeatNo
+        from Flights f
+                 natural join Seats s
+        where f.FlightId = :FlightId
+          and current_timestamp < f.FlightTime
+        except
+        select nft.SeatNo as SeatNo
+        from NotFreeTickets nft
+        where nft.FlightId = :FlightId;
+commit;
+-- Для зарегистрированного пользователя также отдадим его билеты
+start transaction read only isolation level read committed;
+return query
+        select *
+        from Tickets
+        where Type = 'booked'
+            and current_timestamp < ActionTime + interval '3 day'
+            and UserId = :UserId)
+commit;
+

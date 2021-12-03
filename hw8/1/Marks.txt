@@ -1,0 +1,99 @@
+-- ДЗ-5.3.3 Информацию о студентах с заданной оценкой (:Mark) по
+-- предмету Который у него вёл (:LecturerId);
+-- ДЗ-5.3.4 Информацию о студентах с заданной оценкой (:Mark) по
+-- предмету Который у него вёл (:LecturerName);
+-- ДЗ-5.3.5 Информацию о студентах с заданной оценкой (:Mark) по
+-- предмету Который вёл (:LecturerId);
+-- Необходим btree т.к. например в 	ДЗ-6.4.2 (StudentName,
+-- CourseName, долги по неудовлетворительной оценке) выбираем оценки
+-- <=2 (сравнение значений лучше осуществлять на деревьях)
+create index marks_mark_course_id_index on Marks using btree (Mark, CourseId)
+
+-- ДЗ-5.7.1 GroupId и CourseId, такие что все студенты группы сдали
+-- предмет
+-- ДЗ-5.7.2 GroupName и CourseName, такие что все студенты группы
+-- сдали предмет
+-- ДЗ-6.2.2 Полная информация о студентах,
+-- не имеющих оценки по :CourseId
+-- Marks используется в join и поэтому неободим упорядоченный
+-- покрывающий индекс, так же такой индекс сокращает общее
+-- количество индексов (ведь где-то требуется
+-- получать значения для StudentId, где-то для (StudentId, CourseId)
+create unique index marks_student_id_course_id_index on Marks using btree (StudentId, CourseId)
+
+-- ДЗ-5.4.1 Информацию о студентах не имеющих оценки по :CourseName
+-- среди всех
+-- ДЗ-5.4.2 Информацию о студентах не имеющих оценки по :CourseName
+-- среди тех, у кого он есть
+-- ДЗ-5.6.1 StudentId имеющих хотя бы одну оценку у :LecturerName
+-- Marks используется в join и поэтому неободим упорядоченный
+-- покрывающий индекс, так же такой индекс сокращает общее
+-- количество индексов (ведь где-то требуется
+-- получать значения для StudentId, где-то для (CourseId, StudentId)
+create index marks_course_id_student_id_index on Marks using btree (CourseId, StudentId)
+
+-- ДЗ-5.8.1 SumMark по :StudentId
+-- ДЗ-7.3.1 Число оценок студента
+-- ДЗ-5.9.1 AvgMark по :StudentId
+-- Реализация на дереве обеспечивает более эффективный подчет
+-- суммы, количества и среденего значения
+create index marks_student_id_mark_index on Marks using btree (StudentId, Mark)
+
+
+
+
+
+
+
+
+
+
+
+6.1-2 CourseId, StudentId -> have mark?
+6.3 CourseId -> StudentId
+6.4 CourseId -> StudentId
+
+7.1s. GroupId и CourseId, такие что все студенты группы сдали предмет (s) (важно, чтобы 1ый было по StudentId, получаем CourseId, остальное пох)
+7.2s. GroupName и CourseName, такие что все студенты группы сдали предмет (s)  (важно, чтобы 1ый было по StudentId, получаем CourseId, остальное пох)
+StudentId -> CourseId
+StudentId -> Mark
+
+7.1s. GroupId и CourseId, такие что все студенты группы сдали предмет (s) (важно, чтобы 1ый было по StudentId, получаем CourseId, остальное пох)
+7.2s. GroupName и CourseName, такие что все студенты группы сдали предмет (s)  (важно, чтобы 1ый было по StudentId, получаем CourseId, остальное пох)
+8.1s. SumMark по :StudentId (sql)
+create index on Marks using btree (StudentId, Mark, CourseId)
+
+-- ДЗ-5.4.1 Информацию о студентах не имеющих оценки по :CourseName среди всех
+-- ДЗ-5.4.2 Информацию о студентах не имеющих оценки по :CourseName среди тех, у кого он есть
+
+
+	5.2s. ФИО студента и названия предметов которые у него есть без оценки (sql)
+-- ДЗ-5.4.1 Информацию о студентах не имеющих оценки по :CourseName среди всех; может использоваться для взятия информации прямо из индекса, но дерево может увеличиться в высоту. Нужны измерения
+-- ДЗ-5.4.2 Информацию о студентах не имеющих оценки по :CourseName среди тех, у кого он есть
+
+
+	5.2s. ФИО студента и названия предметов которые у него есть без оценки (sql)
+	5.3s. ФИО студента и названия предметов которые у него есть, но не 4 или 5 (sql)
+	6.1s. StudentId имеющих хотя бы одну оценку у :LecturerName (sql)
+create index on Marks using btree (StudentId, CourseId)
+
+
+-- 5.3s. ФИО студента и названия предметов которые у него есть, но не 4 или 5 (sql)
+7.1s. GroupId и CourseId, такие что все студенты группы сдали предмет (s) (важно, чтобы 1ый было по StudentId, получаем CourseId, остально пох)
+7.2s. GroupName и CourseName, такие что все студенты группы сдали предмет (s)
+create index on Marks using btree (StudentId, CourseId, Mark)  /// or COurseId, StudentId, Mark
+
+	8.1s. SumMark по :StudentId (sql)
+	8.2s. SumMark для каждого студента (StudentName) (sql)
+	8.3s. SumMark студентов каждой группы (GroupName) (sql)
+	9.1s. AvgMark по :StudentId (sql)
+	9.3s. AvgMark каждой группы (GroupName) (sql)
+	9.4s. AvgAvgMark студентов каждой группы (GroupName) (sql)
+create index on Marks using btree (StudentId, Mark)
+
+7.1s. GroupId и CourseId, такие что все студенты группы сдали предмет (s) (важно, чтобы 1ый было по StudentId, получаем CourseId, остально пох)
+7.2s. GroupName и CourseName, такие что все студенты группы сдали предмет (s)
+create index on Marks using btree (StudentId, CourseId)
+
+create index on Marks using btree (CourseId, StudentId)
+

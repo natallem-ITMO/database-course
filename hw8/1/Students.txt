@@ -1,0 +1,31 @@
+-- ДЗ-5.1.1. Информацию о студентах (StudentId, StudentName, GroupId)
+-- С заданным идентификатором (:StudentId)
+-- ДЗ-5.2.1. Полную информацию о студентах (StudentId, StudentName,
+-- GroupName) С заданным идентификатором (:StudentId)
+-- ДЗ-5.3.1 Информацию о студентах с заданной оценкой (:Mark) по
+-- предмету С заданным идентификатором (:CourseId);
+-- используем hash т.к. у нас не происходит запросов, связанных со
+-- сравнением или выборкой id по каким то вычислимым правилам,
+-- следовательно необходимости в упорядоченном индексе нет, т.к. он
+-- приводит к менее эффективной работе по времени и памяти
+-- + индекс на ключ
+create unique index students_student_id_index on Students
+    using hash (StudentId)
+
+-- ДЗ-6.1.1 Информация о студентах по :StudentName
+-- ДЗ-5.1.2. Информацию о студентах (StudentId, StudentName, GroupId)
+-- С заданным ФИО (:StudentName)
+-- ДЗ-5.1.2. Информацию о студентах (StudentId, StudentName, GroupId)
+-- С заданным ФИО (:StudentName)
+-- Используем hash, т.к. у нас нет запросов на часть имени =>
+-- использование дерева на строке нецелесообразно
+create index students_student_name_index on Students using hash
+    (StudentName)
+
+-- ДЗ-5.8.3 SumMark студентов каждой группы (GroupName)
+-- ДЗ-5.9.3 AvgMark каждой группы (GroupName)
+-- ДЗ-5.9.4 AvgAvgMark студентов каждой группы (GroupName)
+-- Students используется в join и поэтому неободим упорядоченный
+-- покрывающий индекс (связывающий)
+create unique index students_group_id_student_id_index on Students using
+    btree (GroupId, StudentId)

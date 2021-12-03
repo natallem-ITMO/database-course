@@ -1,0 +1,18 @@
+2.3. Действия с местом
+-- Бронирование билета, (:UserId, :Password) сохранили
+-- на стороне бекенда с момента регистрации, (:FlightId, :SeatNo)
+-- получаем с фронтенда
+start transaction read write isolation level snapshot;
+select Reserve(:UserId, :Password, :FlightId, :SeatNo);
+commit;
+-- Анонимная покупка (:UserId, :Password), (:FlightId, :SeatNo)
+-- получаем с фронтенда
+start transaction read write isolation level snapshot;
+select BuyFree(:FlightId, :SeatNo);
+commit;
+-- Покупка забронированного места, (:UserId, :Password) сохранили
+-- на стороне бекенда с момента регистрации, (:FlightId, :SeatNo)
+-- получаем с фронтенда
+start transaction read write isolation level repeatable read;
+select BuyReserved(:UserId, :Password, :FlightId, :SeatNo);
+commit;
